@@ -1,4 +1,4 @@
-# RAG App — Azure
+# RAG App | Azure
 
 Projeto de RAG (Retrieval-Augmented Generation) com LangChain e Google Gemini. Usa dados fictícios da empresa para gerar respostas precisas e humanizadas, com busca semântica via PGVector. Publicado no Azure com frontend público (App Service) e banco isolado em rede privada (Private Endpoint).
 
@@ -23,7 +23,7 @@ Internet ──► App Service (app-rag-c3, B1, Python 3.12)
             PostgreSQL Flexible Server (pg-rag-app, acesso público desabilitado)
 
 (zona DNS privada privatelink.postgres.database.azure.com
- vinculada às DUAS VNets — ver passo 3 do deploy)
+ vinculada às DUAS VNets, ver passo 3 do deploy)
 ```
 
 ## Variáveis de ambiente
@@ -31,7 +31,7 @@ Internet ──► App Service (app-rag-c3, B1, Python 3.12)
 | Variável | Descrição |
 |---|---|
 | `CHAVE_API_GOOGLE` | Chave da API Gemini |
-| `DATABASE_URL` | `postgresql://USUARIO:SENHA@HOST:5432/rag_db?sslmode=require` — no Azure use `sslmode=require`; caracteres especiais na senha devem ser URL-encoded (`@` → `%40`) |
+| `DATABASE_URL` | `postgresql://USUARIO:SENHA@HOST:5432/rag_db?sslmode=require`. No Azure use `sslmode=require`; caracteres especiais na senha devem ser URL-encoded (`@` → `%40`) |
 
 Local: defina no arquivo `.env` (nunca versionado). Azure: defina em App Service → Variáveis de ambiente.
 
@@ -64,7 +64,7 @@ streamlit run consume_api/interface_main.py
    - Com o servidor ainda público (firewall com seu IP), rodar a carga: `python -m consume_api.insert_data_in_database.inserir_dados_postgres` apontando `DATABASE_URL` para o Azure;
    - Desabilitar o acesso público e criar o **Private Endpoint** `pe-pg-backend` na `vnet-backend` com integração de DNS privado;
    - **Importante:** vincular a zona DNS privada `privatelink.postgres.database.azure.com` também à `vnet-frontend` (Zonas DNS privadas → Links de rede virtual → + Adicionar). Sem esse link, o App Service não resolve o hostname do banco para o IP privado e a conexão falha com *Connection timed out*.
-4. **App Service** (`app-rag-c3`, Linux, Python 3.12, plano **B1** — o Free F1 não suporta VNet Integration):
+4. **App Service** (`app-rag-c3`, Linux, Python 3.12, plano **B1**, pois o Free F1 não suporta VNet Integration):
    - Comando de inicialização:
      ```
      python -m streamlit run consume_api/interface_main.py --server.port 8000 --server.address 0.0.0.0 --server.headless true
@@ -74,7 +74,7 @@ streamlit run consume_api/interface_main.py
    - **VNet Integration** com `vnet-frontend`/`subnet-app`;
    - Reiniciar o App Service após mudanças de rede/DNS.
 5. **Deploy contínuo:** Centro de Implantação → GitHub (repo `ragIA-aZure`, branch `main`). Cada `git push` publica automaticamente via GitHub Actions.
-6. **Validação:** diagrama em Resource Group → **Visualizador de recursos** (VNets, peering, Private Endpoint, App Service) e teste na URL pública — as respostas exibem as fontes lidas do banco. Alternativa via CLI (a tela Topologia do Network Watcher pode falhar ao renderizar):
+6. **Validação:** diagrama em Resource Group → **Visualizador de recursos** (VNets, peering, Private Endpoint, App Service) e teste na URL pública. As respostas exibem as fontes lidas do banco. Alternativa via CLI (a tela Topologia do Network Watcher pode falhar ao renderizar):
    ```bash
    az network watcher configure --resource-group NetworkWatcherRG --locations <regiao> --enabled true
    az network watcher show-topology --resource-group rg-lab-redes-distribuidas --location <regiao>
@@ -85,13 +85,13 @@ streamlit run consume_api/interface_main.py
 | Roteiro original | Implementado | Motivo |
 |---|---|---|
 | Azure SQL Database | PostgreSQL Flexible Server + pgvector | O RAG exige busca vetorial; tecnologia livre pelo edital |
-| — | Zona DNS privada vinculada também à `vnet-frontend` | Particularidade do PG Flexible: sem o link o App Service não resolve o host privado |
+| (não previsto) | Zona DNS privada vinculada também à `vnet-frontend` | Particularidade do PG Flexible: sem o link o App Service não resolve o host privado |
 | Região Brazil South | Chile Central | Política da assinatura estudantil só libera chilecentral + 4 regiões dos EUA |
 | Plano Free F1 | Básico B1 | F1 não suporta VNet Integration |
 | Zip Deploy manual | GitHub Actions (CI/CD) | Deploy contínuo e rastreável |
 | Hello World Node.js | Aplicação própria de RAG (Python/Streamlit/Gemini) | Exigência do edital |
 | Topologia (Network Watcher) | Visualizador de recursos + `az network watcher show-topology` | Tela de Topologia com falha de renderização na região |
-| `subnet-private` | Sub-rede 10.20.1.0/24 (mesmo intervalo do roteiro) | Azure não permite renomear sub-rede após criação |
+| `subnet-private` | Sub-rede `vnet-backend` (10.20.1.0/24, mesmo intervalo do roteiro; apesar do nome igual ao da VNet, são recursos distintos: a sub-rede é filha da VNet e o range de IP diferencia: VNet = /16, sub-rede = /24) | Azure não permite renomear sub-rede após criação |
 
 ## Custos
 App Service B1 e PostgreSQL B1ms cobram por hora (o PG é coberto pelas 750h/mês gratuitas do Azure for Students). Após a avaliação, **apague o Resource Group inteiro** para zerar o consumo.
