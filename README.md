@@ -1,105 +1,76 @@
-# Rag app
-Projeto de RAG (Retrieval-Augmented Generation) com LangChain e Google Gemini. Usa dados fictícios da empresa (ex: dados_empresa.txt) para gerar respostas precisas e humanizadas. Ideal para chatbots internos, assistentes de conhecimento ou sistemas de suporte. Inclui: carregamento de dados, chunking inteligente, embeddings e busca semântica
+# RAG App — Azure
 
-## Technologies
-* `python`  
-* `Cloud console`  
-* `Docker`
-* `PostgreSql`
-* `PGVector`
+Projeto de RAG (Retrieval-Augmented Generation) com LangChain e Google Gemini. Usa dados fictícios da empresa para gerar respostas precisas e humanizadas, com busca semântica via PGVector. Publicado no Azure com frontend público (App Service) e banco isolado em rede privada (Private Endpoint).
 
-## Running the Project
+## Tecnologias
+* Python / Streamlit / LangChain / Google Gemini
+* PostgreSQL + PGVector
+* Azure: App Service, Database for PostgreSQL Flexible Server, VNets, Peering, Private Endpoint
+* Docker (ambiente local) e GitHub Actions (deploy)
 
-1. Crie e ative um ambiente virtual Python.
+## Arquitetura no Azure
 
-	```bash
-	python -m venv .venv
-	source .venv/bin/activate
-	```
+```
+Internet ──► App Service (app-rag-c3, B1, Python 3.12)
+                │  VNet Integration
+            vnet-frontend (10.10.0.0/16, subnet-app)
+                │  Peering
+            vnet-backend (10.20.0.0/16, 10.20.1.0/24)
+                │  Private Endpoint (pe-pg-backend)
+            PostgreSQL Flexible Server (pg-rag-app, acesso público desabilitado)
+```
 
-2. Instale as dependências.
+Região: Chile Central (única liberada pela política da assinatura, junto a algumas dos EUA).
 
-	```bash
-	pip install -r requirements.txt
-	```
+## Variáveis de ambiente
 
-3. Configure a variável de ambiente da API do Google Gemini.
+| Variável | Descrição |
+|---|---|
+| `CHAVE_API_GOOGLE` | Chave da API Gemini |
+| `DATABASE_URL` | `postgresql://USUARIO:SENHA@HOST:5432/rag_db?sslmode=require` — no Azure use `sslmode=require`; caracteres especiais na senha devem ser URL-encoded (`@` → `%40`) |
 
-	Crie um arquivo `.env` na raiz do projeto com o mesmo nome usado pelo código:
+Local: defina no arquivo `.env` (nunca versionado). Azure: defina em App Service → Variáveis de ambiente.
 
-	```env
-	CHAVE_API_GOOGLE=cole_sua_chave_aqui
-	```
+## Rodando localmente
 
-4. Suba o PostgreSQL usando uma imagem do Docker que já venha com `pgvector`.
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
 
-    O projeto foi pensado para conversar com um PostgreSQL local, então o mais simples é subir um container com a extensão pronta. A imagem oficial do `pgvector` no Docker Hub é esta: [pgvector/pgvector](https://hub.docker.com/r/pgvector/pgvector).
+# PostgreSQL com pgvector via Docker
+docker run --name rag-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=senha123 \
+  -e POSTGRES_DB=rag_db -p 5432:5432 -d pgvector/pgvector:pg16
 
-    O código usa por padrão esta conexão:
+# .env com CHAVE_API_GOOGLE (DATABASE_URL é opcional; o padrão já aponta para o container acima)
 
-    ```text
-    postgresql://postgres:senha123@localhost:5432/rag_db
-    ```  
-    
-    Exemplo rápido com Docker:
+# Carga de dados (cria extensão e tabela automaticamente)
+python -m consume_api.insert_data_in_database.inserir_dados_postgres
 
-    ```bash
-    docker run --name rag-db \
-        -e POSTGRES_USER=postgres \
-        -e POSTGRES_PASSWORD=senha123 \
-        -e POSTGRES_DB=rag_db \
-        -p 5432:5432 \
-        -d pgvector/pgvector:pg16
-    ```
+# Interface
+streamlit run consume_api/interface_main.py
+```
 
-    Se você usar outro usuário, senha, host ou banco, ajuste o valor em `consume_api/rag_core.py` e no script de carga.
+## Deploy no Azure
 
-5. Crie o banco e a tabela esperados pelo projeto, caso ainda não existam.
+1. **Resource Group** `rg-lab-redes-distribuidas`.
+2. **VNets** `vnet-frontend` (10.10.0.0/16, `subnet-app` 10.10.1.0/24) e `vnet-backend` (10.20.0.0/16, sub-rede 10.20.1.0/24), na mesma região, com **Peering** bidirecional.
+3. **PostgreSQL Flexible Server** (`pg-rag-app`, Burstable B1ms, autenticação PostgreSQL):
+   - Parâmetros do servidor → `azure.extensions` → habilitar `VECTOR`;
+   - Criar o database `rag_db`;
+   - Com o servidor ainda público (firewall com seu IP), rodar a carga: `python -m consume_api.insert_data_in_database.inserir_dados_postgres` apontando `DATABASE_URL` para o Azure;
+   - Desabilitar o acesso público e criar o **Private Endpoint** `pe-pg-backend` na `vnet-backend` com integração de DNS privado.
+4. **App Service** (`app-rag-c3`, Linux, Python 3.12, plano B1):
+   - Comando de inicialização:
+     ```
+     python -m streamlit run consume_api/interface_main.py --server.port 8000 --server.address 0.0.0.0 --server.headless true
+     ```
+   - Variáveis de ambiente `CHAVE_API_GOOGLE` e `DATABASE_URL`;
+   - Habilitar "Sempre ativado" e credenciais básicas SCM;
+   - **VNet Integration** com `vnet-frontend`/`subnet-app`.
+5. **Deploy contínuo:** Centro de Implantação → GitHub (repo `ragIA-aZure`, branch `main`). Cada `git push` publica automaticamente via GitHub Actions.
+6. **Validação:** Network Watcher → Topologia (VNets, peering, Private Endpoint, App Service) e teste na URL pública — as respostas exibem as fontes lidas do banco.
 
-	```sql
-	CREATE EXTENSION IF NOT EXISTS vector;
-	CREATE DATABASE rag_db;
-
-	\c rag_db
-
-	CREATE TABLE IF NOT EXISTS documentos (
-		 id SERIAL PRIMARY KEY,
-		 document_id VARCHAR(255),
-		 chunk_text TEXT NOT NULL,
-		 chunk_index INTEGER,
-		 section VARCHAR(255),
-		 embedding VECTOR(3072),
-		 metadata JSONB,
-		 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-	);
-	```
-
-6. Disponibilize o arquivo de origem usado na carga de dados.
-
-	O pipeline de ingestão procura o arquivo `data_example/wiki_nexus_monitor.txt`. Se ele não existir no seu ambiente, copie o conteúdo para esse caminho ou ajuste o caminho em `consume_api/insert_data_in_database/make_chunks.py`.
-
-7. Carregue os dados no banco.
-
-	Execute a partir da raiz do repositório:
-
-	```bash
-	python -m consume_api.insert_data_in_database.inserir_dados_postgres
-	```
-
-8. Inicie a aplicação.
-
-	```bash
-	streamlit run consume_api/interface_main.py
-	```
-
-	A interface vai abrir no navegador e consultar os dados já inseridos na tabela `documentos`.
-
-## Preview
-
-
-https://github.com/user-attachments/assets/14e768fb-6761-4c32-b5b6-615ef38699c7
-
-## Authors
+## Autores
 - [Renato Oliveira](https://github.com/RenatoOJ-Dev)
 - [Addriel Teixeira Pereira](https://github.com/addrielteixeira)
 - [Gabriel Moreira da Silva](https://github.com/GabrielMS92)
