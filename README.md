@@ -93,9 +93,6 @@ streamlit run consume_api/interface_main.py
 | Topologia (Network Watcher) | Visualizador de recursos + `az network watcher show-topology` | Tela de Topologia com falha de renderização na região |
 | `subnet-private` | Sub-rede `vnet-backend` (10.20.1.0/24, mesmo intervalo do roteiro; apesar do nome igual ao da VNet, são recursos distintos: a sub-rede é filha da VNet e o range de IP diferencia: VNet = /16, sub-rede = /24) | Azure não permite renomear sub-rede após criação |
 
-## Custos
-App Service B1 e PostgreSQL B1ms cobram por hora (o PG é coberto pelas 750h/mês gratuitas do Azure for Students). Após a avaliação, **apague o Resource Group inteiro** para zerar o consumo.
-
 ## Autores
 - [Renato Oliveira](https://github.com/RenatoOJ-Dev)
 - [Addriel Teixeira Pereira](https://github.com/addrielteixeira)
