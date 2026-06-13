@@ -1,0 +1,181 @@
+================================================================================
+                    WIKI INTERNA - TECHVISION SOLUTIONS
+                    FERRAMENTA: NEXUS MONITOR (v3.2)
+                    Última atualização: 23 de maio de 2026
+================================================================================
+
+## 📌 O QUE É O NEXUS MONITOR?
+
+O Nexus Monitor é a plataforma central de observabilidade da TechVision. Ele coleta, analisa e visualiza métricas em tempo real de servidores, bancos de dados, APIs e aplicações em nuvem, permitindo detecção proativa de falhas, diagnóstico rápido de incidentes e otimização contínua de desempenho.
+
+### Principais funcionalidades:
+- Monitoramento 24/7 de +500 endpoints críticos
+- Alertas inteligentes com redução de falsos positivos (baseado em ML)
+- Dashboards personalizáveis por equipe ou projeto
+- Integração nativa com Slack, Microsoft Teams e PagerDuty
+- Retenção de métricas históricas por até 12 meses
+- Comparação automática de performance (pré/pós-deploy)
+
+ Público-alvo: DevOps, SREs, Engenheiros de Software, Suporte Técnico N2+
+
+---
+
+## 🔧 ACESSO E CONFIGURAÇÃO INICIAL
+
+### Pré-requisitos
+- Conta corporativa ativa no domínio @techvision.com.br
+- Acesso à rede interna (via VPN se estiver remoto)
+- Navegador atualizado: Chrome 115+, Firefox 110+, Edge 115+
+- Permissão "Nexus Viewer" ou superior no IAM do GCP
+
+### Como acessar
+1. Abra o navegador e acesse: https://nexus.techvision.com.br
+2. Faça login com suas credenciais corporativas (SSO via Google Workspace)
+3. Aceite os termos de uso na primeira vez
+
+> ⚠️ **Importante**: Nunca compartilhe sua sessão ou token de acesso. Todas as atividades são auditadas.
+
+---
+
+## 🗺️ NAVEGAÇÃO BÁSICA
+
+### Menu lateral
+- **Dashboard**: Visão geral do estado da infraestrutura
+- **Servidores**: Lista de VMs (GCP/AWS) com status, CPU, memória e disco
+- **Bancos de Dados**: Métricas de queries lentas, conexões ativas, I/O
+- **APIs**: Latência, taxa de erro (4xx/5xx), throughput por endpoint
+- **Alertas**: Central de notificações ativas e histórico de incidentes
+- **Relatórios**: Exportação de métricas para períodos personalizados
+
+### Atalhos do teclado
+- `Ctrl + K` → Busca rápida por recurso (servidor, API, métrica)
+- `Ctrl + /` → Ajuda contextual
+- `Esc` → Fechar painel aberto
+
+---
+
+## 📊 CASOS DE USO COMUNS
+
+### Caso 1: Investigar alta latência em API de pagamentos
+1. Vá em **APIs** → selecione `api-pagamentos-v2`
+2. Visualize o gráfico de **latência P95** nas últimas 2h
+3. Clique em “Correlacionar métricas” para ver:
+   - Uso de CPU do backend
+   - Queries lentas no banco de transações
+   - Erros 5xx no load balancer
+4. Use “Exportar diagnóstico” para gerar relatório PDF
+
+### Caso 2: Criar alerta para uso de disco >90%
+1. Em **Servidores**, selecione `app-prod-07`
+2. Clique em “Configurar alerta” (ícone de sino)
+3. Preencha:
+   - Métrica: `disk_usage_percent`
+   - Condição: `> 90`
+   - Período: `5 minutos consecutivos`
+   - Destinatários: time-devops@techvision.com.br
+   - Severidade: `ALERTA`
+4. Clique em “Salvar e testar”
+
+### Caso 3: Comparar performance antes/depois de deploy
+1. No **Dashboard**, clique em “Comparar períodos”
+2. Defina:
+   - Período A: ontem, 14h–15h (pré-deploy)
+   - Período B: hoje, 14h–15h (pós-deploy)
+3. Selecione métricas: latência, taxa de erro, throughput
+4. Clique em “Gerar comparação” → o sistema mostra delta percentual automaticamente
+
+---
+
+## ⚙️ PERSONALIZAÇÃO AVANÇADA
+
+### Criar dashboard personalizado
+1. Clique em “+ Novo dashboard”
+2. Arraste widgets da biblioteca:
+   - Gráfico de linha (latência)
+   - Gauge (uso de memória)
+   - Tabela (últimos alertas)
+   - Mapa de calor (tráfego por região)
+3. Salve como “Meu Dashboard - Produção” e compartilhe com sua equipe
+
+### Exportar dados
+1. Em qualquer gráfico, clique em “...” → “Exportar dados”
+2. Escolha formato:
+   - CSV (para Excel/Sheets)
+   - JSON (para scripts Python)
+   - PNG (para apresentações)
+3. Intervalo: último minuto até últimos 90 dias
+
+---
+
+## 🚨 GERENCIAMENTO DE ALERTAS
+
+### Níveis de severidade
+| Nível     | Cor   | Ação esperada                     | SLA de resposta |
+|-----------|-------|-----------------------------------|-----------------|
+| CRÍTICO   | 🔴    | Intervenção imediata + escalonar  | 5 minutos       |
+| ALERTA    | 🟠    | Investigar em até 30 min          | 30 minutos      |
+| AVISO     | 🟡    | Registrar para análise posterior  | 4 horas         |
+| INFO      | 🔵    | Apenas registro                   | Não aplicável   |
+
+### Silenciar alertas (manutenção planejada)
+1. Em **Alertas**, selecione o alerta ativo
+2. Clique em “Silenciar” → defina duração (máx. 24h)
+3. Justifique: ex: “Deploy agendado às 22h”
+4. Confirme com gestor via “Aprovar silenciamento”
+
+> ⚠️ Silenciamentos sem justificativa são auditados semanalmente pela equipe de SRE.
+
+---
+
+## 🔍 TROUBLESHOOTING
+
+### Problema: “Não consigo acessar o Nexus Monitor”
+- ✅ Verifique se está na rede corporativa ou conectado à VPN
+- ✅ Confirme permissão “Nexus Viewer” no IAM
+- ✅ Tente modo anônimo ou limpe cache
+- ❌ Persistindo: abra ticket no Jira (projeto `SUPPORT`, label `nexus-access`)
+
+### Problema: “Alertas não chegam no Slack”
+- ✅ Verifique integração em “Configurações → Slack”
+- ✅ Confirme webhook válido (expira a cada 90 dias)
+- ✅ Teste manualmente com “Enviar teste”
+- ❌ Persistindo: contate time-devops@techvision.com.br
+
+### Problema: “Métricas parecem desatualizadas”
+- ✅ Verifique timestamp no canto inferior direito
+- ✅ Delay normal: até 60 segundos
+- ✅ Se >5 min: reinicie o serviço `nexus-agent` no servidor afetado
+
+---
+
+## 📚 RECURSOS ADICIONAIS
+
+### Documentação
+- Guia do usuário: https://docs.techvision.com.br/nexus
+- Referência da API: https://api.techvision.com.br/nexus/docs
+- Tutoriais em vídeo: Canal TechVision no YouTube
+
+### Suporte
+- Slack: #suporte-nexus
+- E-mail: nexus-support@techvision.com.br
+- Plantão 24/7: (11) 3456-7892 → diga “Nexus crítico”
+
+### Treinamentos
+- Workshop mensal “Nexus para DevOps” (inscrição via HR Portal)
+- Certificação interna “Nexus Expert” (conta na avaliação de desempenho)
+
+---
+
+## 🔄 HISTÓRICO DE VERSÕES
+
+| Versão | Data       | Principais mudanças                          |
+|--------|------------|----------------------------------------------|
+| 3.2    | Jun/2026   | Nova UI, alertas com ML, exportação JSON     |
+| 3.1    | Mai/2026   | Integração com PagerDuty, dashboards móveis  |
+| 3.0    | abr/2026   | Reescrita completa, suporte multi-cloud      |
+| 2.5    | mar/2026   | Detecção de anomalias baseada em IA          |
+
+================================================================================
+                    FIM DA DOCUMENTAÇÃO - NEXUS MONITOR v3.2
+                    © 2026 TechVision Solutions Tecnologia Ltda
+================================================================================

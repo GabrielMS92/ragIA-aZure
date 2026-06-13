@@ -1,0 +1,9 @@
+﻿Campo,Tipo,Tamanho,Descrição,Exemplo
+`id`,SERIAL,-,"Chave primária, auto-incremento",1", "2", "3...
+`document_id`,VARCHAR,255,Nome do arquivo original,"""wiki_nexus_monitor.txt"""
+`chunk_text`,TEXT,Ilimitado,Texto completo do chunk,"""O Nexus Monitor é..."""
+`chunk_index`,INTEGER,-,Posição do chunk no documento,0", "1", "2...
+`section`,VARCHAR,255,Seção do documento,"""DADOS GERAIS"""
+`embedding`,VECTOR,3072,Vetor numérico do embedding,"[0.23, -1.45, ...]"
+`metadata`,JSONB,Variável,Metadados em formato JSON,"{""source"": ""wiki""}"
+`created_at`,TIMESTAMP,-,Data/hora de criação,2025-03-23 14:30:00

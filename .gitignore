@@ -1,0 +1,151 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+venv.bak/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.tox/
+*.tox/
+.nox/
+coverage.xml
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage/*
+
+# Translations
+*.mo
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP517
+.mypy_cache/
+.pyre/
+__pypackages__/
+
+# VS Code settings
+.vscode/
+
+# Visual Studio
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+.AppleDouble
+._*
+.LSOverride
+
+# Thumbnails
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Backup files
+*~
+*.bak
+*.swp
+
+# Environment variables file - actual .env should NOT be committed
+.env
+
+# Credentials / keys / tokens (Google API common filenames)
+credentials.json
+token.json
+client_secret.json
+client_id.json
+
+# Data files
+data/
+
+# Logs
+logs/
+
+# Coverage and test result files
+.pytest_cache/
+
+# OS-specific files
+*.log
+
+# Optional: include pyproject/poetry related
+poetry.lock
+
+# Notebook checkpoints and outputs
+*.nbconvert.ipynb
+
+# If you add other environment folders, add them here
+.envrc
+
+# Optinonal
+.flake8
