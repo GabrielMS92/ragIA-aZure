@@ -2,9 +2,6 @@
 
 Projeto de RAG (Retrieval-Augmented Generation) com LangChain e Google Gemini. Usa dados fictícios da empresa para gerar respostas precisas e humanizadas, com busca semântica via PGVector. Publicado no Azure com frontend público (App Service) e banco isolado em rede privada (Private Endpoint).
 
-## Vídeo de apresentação
-[![Apresentação do Lab Azure](https://img.youtube.com/vi/COLOQUE_O_ID_DO_VIDEO_AQUI/hqdefault.jpg)](https://www.youtube.com/watch?v=COLOQUE_O_ID_DO_VIDEO_AQUI)
-
 ## Tecnologias
 * Python / Streamlit / LangChain / Google Gemini
 * PostgreSQL + PGVector
@@ -12,6 +9,10 @@ Projeto de RAG (Retrieval-Augmented Generation) com LangChain e Google Gemini. U
 * Docker (ambiente local) e GitHub Actions (deploy)
 
 ## Arquitetura no Azure
+As imagens abaixo mostram a topologia de rede e a visualização de recursos usados no deploy do projeto.
+
+![Topologia de rede Azure](docs/rg-lab-redes-distribuidas.jpg)
+![Visualização de recursos Azure](docs/outro.png)
 
 ```
 Internet ──► App Service (app-rag-c3, B1, Python 3.12)
