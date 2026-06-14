@@ -95,7 +95,6 @@ streamlit run consume_api/interface_main.py
 | `subnet-private` | Sub-rede `vnet-backend` (10.20.1.0/24, mesmo intervalo do roteiro; apesar do nome igual ao da VNet, são recursos distintos: a sub-rede é filha da VNet e o range de IP diferencia: VNet = /16, sub-rede = /24) | Azure não permite renomear sub-rede após criação |
 
 ## Autores
-- [Renato Oliveira](https://github.com/RenatoOJ-Dev)
 - [Addriel Teixeira Pereira](https://github.com/addrielteixeira)
 - [Gabriel Moreira da Silva](https://github.com/GabrielMS92)
 - [Ricardo Formigoni Souza](https://github.com/formigoniricardo)
